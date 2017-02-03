@@ -12,14 +12,14 @@ are no menu or windows.
 The present version is only capable of basic two-component PIV and is 
 under development for stereoscopic PIV.
 
-The toolbox is open source under GNU General Public License version 3, 
-and you are very welcome to contribute to the code.
+The toolbox is open source, and you are very welcome to contribute to 
+the code.
 
 The main developer of the code is:
 
-|Knud Erik Meyer
-|Department of Mechanical Engineering
-|Technical University of Denmark
-|DK-2800 Kongens Lyngby
-|e-mail: keme@dtu.dk
+| Knud Erik Meyer
+| Department of Mechanical Engineering
+| Technical University of Denmark
+| DK-2800 Kongens Lyngby
+| e-mail: keme@dtu.dk
 
