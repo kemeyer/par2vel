@@ -7,12 +7,14 @@ Welcome to par2vel's documentation!
 ===================================
 
 Par2vel is a python toolbox for doing Particle Image Velocimetry
-(PIV). It is aimed for research and education. It might not be as fast
+(PIV). The name indicates that it supports methods where images of
+tracer **par**\ ticles are used to to estimate fluid **vel**\ ocities. 
+It is aimed for research and education. It is not as fast
 as commercial codes, but it should be easy to do your own design of
 processing. Since it is a toolbox, you will need to have some basic
 knowledge of the Python script language. If you look at a few
-examples, you will probably get the idea. So - the user interface is
-using a python script or command prompt. There are no menu or windows.
+examples, you will probably get the idea. The user interface a
+simple python script or command prompt. 
 
 Contents:
 
@@ -20,7 +22,8 @@ Contents:
    :maxdepth: 2
 
    overview
-   camera   
+   camera
+   field   
 
 
 Indices and tables
