@@ -396,20 +396,6 @@ class Scheimpflug(Camera):
             n += 1
         self.shape = self.pixels
       
-    def dx2dX(self, x, dx, z=0):
-        """Transform displacement in pixel to physical displacement.
-           The displacement is assumed to be at the z=0 plane in
-           physical space.
-        """
-        # very simple model setting physical coordinates to image coord.
-        from numpy import zeros, vstack
-        X = self.x2X(x)
-        X2 = self.x2X(x+dx)
-        dX = X2-X
-        # dummy, n = dx.shape
-        # dX = vstack((dx, zeros((1,n))))
-        return dX      
-
     def save_camera(self, filename):
         """Save camera definition and/or calibration data"""
         f = open(filename,'w')
@@ -488,13 +474,23 @@ class Scheimpflug(Camera):
         X2 = zeros((1,nj))
         X = vstack((X0, X1, X2))
         return X
+
+    def dx2dX(self, x, dx, z=0):
+        """Transform displacement in pixel to physical displacement.
+           The displacement is assumed to be at the z=0 plane in
+           physical space (other values cannot be used).
+        """
+        # very simple model setting physical coordinates to image coord.
+        from numpy import zeros, vstack
+        assert z == 0
+        dX = self.x2X(x + 0.5 * dx) - self.x2X(x - 0.5 * dx)
+        return dX      
+
+
     def dX2dx(self, X, dX):
         """Use camera models to transform displacement in object coordinates
         to displacement in image coordinates"""
-        x = self.X2x(X)
-        x2 = self.X2x(numpy.add(X,dX))
-        dx = x2-x
-        
+        dx = self.X2x(X + 0.5 * dX) - self.X2x(X - 0.5 * dX) 
         return dx
                 
 def readimage(filename):

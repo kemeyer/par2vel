@@ -154,6 +154,17 @@ class testScheimpflug(unittest.TestCase):
         x = cam.X2x(X)
         Xresult = cam.x2X(x)
         self.assertAlmostEqual(abs((X - Xresult).sum()),0)
+        
+    def test_dx2dX(self):
+        from numpy import array, pi, zeros
+        cam = Scheimpflug()
+        cam.set_calibration(pi/4, 0.1)
+        X = array([[0.0], [0.0], [0.0]])
+        dX = array([[0.001], [-0.002], [0.0]])
+        x = cam.X2x(X)
+        dx = cam.dX2dx(X, dX)
+        dX2 = cam.dx2dX(x, dx)
+        self.assertAlmostEqual(abs((dX - dX2).sum()),0)
 
     def test_save_read(self):
         cam1 = Scheimpflug()
