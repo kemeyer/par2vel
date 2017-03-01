@@ -488,7 +488,14 @@ class Scheimpflug(Camera):
         X2 = zeros((1,nj))
         X = vstack((X0, X1, X2))
         return X
-
+    def dX2dx(self, X, dX):
+        """Use camera models to transform displacement in object coordinates
+        to displacement in image coordinates"""
+        x = self.X2x(X)
+        x2 = self.X2x(numpy.add(X,dX))
+        dx = x2-x
+        
+        return dx
                 
 def readimage(filename):
     """ Read grayscale image from file """
