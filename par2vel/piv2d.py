@@ -26,19 +26,17 @@ def findpeakindex(a):
 
 def gauss_interpolate1(x):
     """ Return fractional peak position assuming Guassian shape
-        x is a vector with 3 elements,
+        x is a numpy vector with 3 elements,
         ifrac returned is relative to center element.
     """
     from numpy import log
     assert (x[1] >= x[0]) and (x[1] >= x[2]), 'Peak must be at center element'
     # avoid log(0) or divide 0 error
-    try:
-        if any(x <= 0):
-            raise ValueError
+    if all(x > 0):
         r = log(x)
         ifrac = (r[0] - r[2]) / (2 * r[0] - 4 * r[1] + 2 * r[2])
-    except ValueError:   # use centroid instead
-        print("using centroid")
+    else:
+        # print("using centroid in gauss_interpolate")
         ifrac = (x[2] - x[0]) / sum(x)
     return ifrac
 
@@ -258,7 +256,7 @@ def Optimizex0(Im1,Im2,x0,dx,ddxdx,window):
        Optimization is done on each element of ddxdx and dx by
        Gaussinterpolation of the peak in FindCorr.
     """
-    from numpy import ones,hstack
+    from numpy import ones, hstack, array
     # reshape x0 and dx to be sure of right form
     x0=x0.reshape((2,1))
     dx=dx.reshape((2,1))
@@ -305,7 +303,8 @@ def Optimizex0(Im1,Im2,x0,dx,ddxdx,window):
                 ddxdxw.flat[i]=tmp
                 maxcorrectfrac=stepratio
             else:                                         # peak near center
-                correctfrac=gauss_interpolate1([corrminus,corrvalue,corrplus])
+                correctfrac=gauss_interpolate1(
+                                   array([corrminus,corrvalue,corrplus]))
                 ddxdxw.flat[i]+=correctfrac*stepratio*startstep.flat[i]
                 maxcorrectfrac=max(abs(correctfrac),maxcorrectfrac)
                 if ddxdx:
