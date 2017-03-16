@@ -33,9 +33,11 @@ def gauss_interpolate1(x):
     assert (x[1] >= x[0]) and (x[1] >= x[2]), 'Peak must be at center element'
     # avoid log(0) or divide 0 error
     try:
+        if any(x <= 0):
+            raise ValueError
         r = log(x)
         ifrac = (r[0] - r[2]) / (2 * r[0] - 4 * r[1] + 2 * r[2])
-    except:   # use centroid instead
+    except ValueError:   # use centroid instead
         print("using centroid")
         ifrac = (x[2] - x[0]) / sum(x)
     return ifrac
@@ -125,7 +127,7 @@ def displacementFFT(win1,win2,biascorrect=None):
     if biascorrect is None: 
         biascorrect=xcorr2(numpy.ones((winsize,winsize),float),
                       numpy.ones((winsize,winsize),float))/(winsize*winsize)
-    R2=R/biascorrect
+    R2 = R/biascorrect
     # find peak 
     ipeak,jpeak=findpeakindex(R)
     # find peak in R2 (might move sligthly)
@@ -137,7 +139,6 @@ def displacementFFT(win1,win2,biascorrect=None):
         ifrac,jfrac=gauss_interpolate2(R2[ipeak-1:ipeak+2,jpeak-1:jpeak+2])
     except IndexError:  # peak at edge of correlation plane
         ifrac,jfrac=0.0,0.0
-    # print R2[winsize-3:winsize+2,winsize-3:winsize+2]
     return winsize - 1 - ipeak - ifrac, winsize -1 - jpeak - jfrac    
 
 def fftdx(Im1, Im2, field):

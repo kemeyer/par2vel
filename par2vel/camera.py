@@ -395,7 +395,7 @@ class Scheimpflug(Camera):
                 self.set_keyword(line)
             n += 1
         self.shape = self.pixels
-      
+        
     def save_camera(self, filename):
         """Save camera definition and/or calibration data"""
         f = open(filename,'w')
@@ -490,7 +490,7 @@ class Scheimpflug(Camera):
     def dX2dx(self, X, dX):
         """Use camera models to transform displacement in object coordinates
         to displacement in image coordinates"""
-        dx = self.X2x(X + 0.5 * dX) - self.X2x(X - 0.5 * dX) 
+        dx = self.X2x(X + 0.5 * dX) - self.X2x(X - 0.5 * dX)
         return dx
                 
 def readimage(filename):
