@@ -5,8 +5,8 @@ Overview
 PIV starts with images - usually grayscale images of particles. You
 have probably taken the images with one or more PIV cameras.  You will
 need to handle how to read your images into the format that is used in
-par2vel: a matrix (numpy array) with real numbers between 0 and 1. The
-general library PIL is useful here (use ``import Image``). A simple
+par2vel: a two-dimensional numpy array with real numbers between 0 and 1. The
+general library PIL (pillow) is useful here (use ``import Image``). A simple
 function called ``readimage`` is provided, but it may not handle
 images from your camera.
 
@@ -33,3 +33,13 @@ results.
 
 A module for generating artificial images is also include. This is
 called ``artimage``.
+
+The toolbox lives at 
+`github.com/kemeyer/par2vel <https://github.com/kemeyer/par2vel>`_. 
+You can easily make your own copy (clone) of the project using 
+`git <https://git-scm.com/>`_. You can install the package at your 
+local systemt by running the following command in 
+your local directory of par2vel (containing the script setup.py):
+::
+    python setup.py install
+
