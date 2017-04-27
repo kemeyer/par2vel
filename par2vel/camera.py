@@ -500,7 +500,7 @@ def readimage(filename):
     im=Image.open(filename)
     s=im.tobytes()
     if im.mode=='L':        # 8 bit image
-        gray=numpy.from(s,numpy.uint8)/255.0
+        gray=numpy.fromstring(s,numpy.uint8)/255.0
     elif im.mode=='I;16':   # 16 bit image (assume 12 bit grayscale)
         gray=numpy.fromstring(s,numpy.uint16)/4095.0
     else:
