@@ -494,11 +494,13 @@ class Scheimpflug(Camera):
         return dx
                 
 def readimage(filename):
-    """ Read grayscale image from file """
+    """ Read grayscale image from file 
+        Probably only works with tiff and bmp files 
+    """
     im=Image.open(filename)
-    s=im.tostring()
+    s=im.tobytes()
     if im.mode=='L':        # 8 bit image
-        gray=numpy.fromstring(s,numpy.uint8)/255.0
+        gray=numpy.from(s,numpy.uint8)/255.0
     elif im.mode=='I;16':   # 16 bit image (assume 12 bit grayscale)
         gray=numpy.fromstring(s,numpy.uint16)/4095.0
     else:
@@ -512,5 +514,5 @@ def saveimage(image,filename):
     imwork[imwork<0]=0
     imwork[imwork>1]=1
     im8bit=(255*imwork).astype(numpy.uint8)
-    im=Image.fromstring('L',(image.shape[1],image.shape[0]),im8bit.tostring())
+    im=Image.frombytes('L',(image.shape[1],image.shape[0]),im8bit.tostring())
     im.save(filename)
