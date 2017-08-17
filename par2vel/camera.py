@@ -492,7 +492,63 @@ class Scheimpflug(Camera):
         to displacement in image coordinates"""
         dx = self.X2x(X + 0.5 * dX) - self.X2x(X - 0.5 * dX)
         return dx
-                
+
+class Pinhole(Camera):
+    """Pinhole model with lens distortion"""
+    
+    def __init__(self, newshape=None):
+        Camera.__init__(self,newshape)
+        # define camera calibration model (= class)
+        self.model = 'Pinhole'
+
+    def calculate_R(self):
+        """Calculate rotation matrix from Euler angles"""
+        from numpy import array, sin, cos
+        # equation from Tsai (1987)
+        theta, phi, psi = self.angle
+        self.R = array([
+            [cos(psi) * cos(theta), sin(psi) * cos(theta), -sin(theta)],
+            [-sin(psi) * cos(phi) + cos(psi) * sin(theta) * cos(phi), 
+             cos(psi) * cos(phi) + sin(psi) * sin(theta) * sin(phi),
+             cos(theta) * sin(phi)],
+            [sin(psi) * sin(phi) + cos(psi) * sin(theta) * cos(phi),
+             -cos(psi) * sin(phi) + sin(psi) * sin(theta) * cos(phi),
+             cos(theta) * cos(phi)]
+            ]) 
+
+    def set_calibration(self, angle, T, f, k, x0):
+        from numpy import array
+        assert len(angle) == 3;
+        Tarray = array(T).reshape((3,1))
+        assert type(f) == float or type(f) == int
+        if type(k) == float or type(k) == int: k = array([k])
+        assert len(k) > 0
+        assert len(x0) == 2
+        self.angle = angle # Euler angles for coordinate transformation
+        self.T = Tarray    # Translation vector for coordinate transformation
+        self.f = f         # Effective focal length
+        self.k = k         # lens distortion coefficients (one or more)
+        self.x0 = x0       # pixel coordinates of optical axis
+        self.calculate_R()
+        
+    def X2x(self, X):
+        """Use camera model to get camera coordinates x
+           from physical cooardinates X.
+        """
+        from numpy import dot, sqrt, array
+        # append row of ones below first two rows of X
+        Xc = dot(self.R, X) + self.T      # transform to pinhole coordinates
+        xd = self.f * Xc[0:2,:] / Xc[2,:] # pinhole model
+        r = sqrt(xd[0,:]**2 + xd[1,:])    # radial distance to optical axis
+        xu = xd + k[0] * r                # first order radial distortion
+        for i in range(len(k)-1):
+            xu = k[i + 1] * r**(i+2)      # optional higher order terms
+        pixelpitch = array(self.pixel_pitch).reshape((2,1))
+        x = xu / pixelpitch + self.x0
+        return x
+
+
+               
 def readimage(filename):
     """ Read grayscale image from file 
         Probably only works with tiff and bmp files 

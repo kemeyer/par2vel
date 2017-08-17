@@ -179,7 +179,15 @@ class testScheimpflug(unittest.TestCase):
         self.assertAlmostEqual(cam2.M, 0.1)
         os.remove(filename)
 
-
+class testPinhole(unittest.TestCase):
+    
+    def test_calculate_R(self):
+        from numpy import pi, eye
+        cam = Pinhole()
+        cam.set_calibration([0,0,0],[0,0,0], 1, 0, [0,0])
+        self.assertAlmostEqual((cam.R - numpy.eye(3)).sum(), 0)
+        cam.set_calibration([0,pi/2,0],[0,0,0], 1, 0, [0,0])
+        print(cam.R)
 
 if __name__=='__main__':
     numpy.set_printoptions(precision=4)
