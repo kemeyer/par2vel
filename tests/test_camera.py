@@ -187,8 +187,25 @@ class testPinhole(unittest.TestCase):
         cam.set_calibration([0,0,0],[0,0,0], 1, 0, [0,0])
         self.assertAlmostEqual((cam.R - numpy.eye(3)).sum(), 0)
 
-
-
+    def test_save_read(self):
+        from numpy import array
+        angle = array([0, 0.1, 0.2])
+        T = array([0, 1, 2])
+        f = 0.05
+        k = array([0.01])
+        x0 = array([640, 512])
+        cam1 = Pinhole()
+        cam1.set_calibration(angle, T, f, k, x0)
+        filename = 'temporary4.cam'
+        cam1.save_camera(filename)
+        cam2 = Pinhole()
+        cam2.read_camera(filename)
+        self.assertAlmostEqual(abs((cam2.angle - angle).sum()),0)
+        self.assertAlmostEqual(abs((cam2.T - T).sum()),0)
+        self.assertAlmostEqual(cam2.f,f)
+        self.assertAlmostEqual(abs((cam2.k - k).sum()),0)
+        self.assertAlmostEqual(abs((cam2.x0 - x0).sum()),0)
+        os.remove(filename)
 
 
 if __name__=='__main__':

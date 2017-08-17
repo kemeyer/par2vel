@@ -530,6 +530,55 @@ class Pinhole(Camera):
         self.k = k         # lens distortion coefficients (one or more)
         self.x0 = x0       # pixel coordinates of optical axis
         self.calculate_R()
+
+    def save_camera(self, filename):
+        """Save camera definition and/or calibration data"""
+        f = open(filename,'w')
+        f.write('# par2vel camera file\n')
+        f.write("model = '{:}'\n".format(self.model))
+        # first save defined keywords
+        self.save_keywords(f)
+        # save calibration
+        print('Calibration Pinhole model', file=f)
+        for number in self.angle:
+            print(repr(number), end=' ', file=f)
+        print(file=f)
+        for number in self.T.flatten():
+            print(repr(number), end=' ', file=f)
+        print(file=f)
+        print(repr(self.f), file=f)
+        for number in self.k:
+            print(repr(number), end=' ', file=f)
+        print(file=f)
+        for number in self.x0:
+            print(repr(number), end=' ', file=f)
+        print(file=f)
+        f.close()
+
+    
+    def read_camera(self, filename):
+        """Read camera definition and/or calibration data"""
+        from numpy import array
+        lines = open(filename).readlines()
+        nlines = len(lines)
+        n = 0
+        while n < nlines:
+            line = lines[n]
+            # check for calibration data
+            if line.lower().find('calibration') == 0:
+                if line.lower().find('pinhole') > 0:
+                    angle = array([float(x) for x in lines[n+1].split()])
+                    T = array([float(x) for x in lines[n+2].split()])
+                    f = float(lines[n+3])
+                    k = array([float(x) for x in lines[n+4].split()])
+                    x0 = array([float(x) for x in lines[n+5].split()])
+                    self.set_calibration(angle, T, f, k, x0)
+                    n += 5                
+            else:
+                self.set_keyword(line)
+            n += 1
+        self.shape = self.pixels
+
         
     def X2x(self, X):
         """Use camera model to get camera coordinates x
