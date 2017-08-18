@@ -4,6 +4,7 @@
 
 import numpy
 import re
+import numbers
 from PIL import Image
 
 class Camera(object):
@@ -19,22 +20,40 @@ class Camera(object):
                 'focal_length': 'Focal length in meters (float)',
                 'f_number':   'F-number on lens (float)'}
 
-    def __init__(self, pixels=None):
-        """Define a camera, possibly by giving size in pixels"""
+    def __init__(self, data=None):
+        """Define a camera, possibly based on optional argument
+           Options are:
+              - List or array with two integers giving numer of pixels
+              - Another Camera object - keyword values are copied
+              - String with filename of camera file
+        """
         # define camera calibration model (= class)
         self.model = 'base'
         # set some default values (may be overwritten by camera file)
         self.pixel_pitch = (1e-5, 1e-5)  # 10 micron
+        self.pixels = (512, 512) 
         self.fill_ratio = (1.0, 1.0)
         self.noise_mean = 0.0
         self.noise_rms = 0.0
         self.focal_length = 0.06
-        # allow pixels to be changed at creation (mostly for tests)
-        if pixels:
-            self.pixels = pixels
+        # modify using optional argument data
+        if data==None:
+            pass
+        elif type(data)==str:
+            self.read_camera(data)
+        elif isinstance(data, (tuple, list, numpy.ndarray)):
+            assert isinstance(data[0], numbers.Integral)
+            assert isinstance(data[1], numbers.Integral)
+            assert len(data) == 2
+            self.pixels = data
+        elif isinstance(data, Camera):
+            for keyword in self.keywords:
+                try:
+                    exec('self.' + keyword + '=data.' + keyword)
+                except:
+                    pass
         else:
-            self.pixels = (512, 512) # default value
-        assert len(self.pixels) == 2
+            print('Warning: unknown input to camera definition')
         # set shape to pixels
         self.shape = self.pixels
         
@@ -146,8 +165,8 @@ class Camera(object):
 class One2One(Camera):
     """Camera model that assumes object coordinates = image coordinates"""
     # same functions as Camera, but adds inverse functions x2X and dx2dX
-    def __init__(self, newshape=None):
-        Camera.__init__(self,newshape)
+    def __init__(self, data=None):
+        Camera.__init__(self, data)
         # define camera calibration model (= class)
         self.model = 'One2One'
 
@@ -275,8 +294,8 @@ class Linear2d(Camera):
 
 class Linear3d(Camera):
     """Camera model using Direct Linear Transform (DFT)"""
-    def __init__(self, newshape=None):
-        Camera.__init__(self,newshape)
+    def __init__(self, data=None):
+        Camera.__init__(self, data)
         # define camera calibration model (= class)
         self.model = 'Linear3d'
 
@@ -356,8 +375,8 @@ class Linear3d(Camera):
 class Scheimpflug(Camera):
     """Camera model for simple Scheimpflug camera"""
     # this camera assumes the coordinatesystem to have origin on optical axis
-    def __init__(self, newshape=None):
-        Camera.__init__(self,newshape)
+    def __init__(self, data=None):
+        Camera.__init__(self, data)
 
     def set_physical_size(self):
         """Set a guess on dimensions in physical space"""
@@ -496,8 +515,8 @@ class Scheimpflug(Camera):
 class Pinhole(Camera):
     """Pinhole model with lens distortion"""
     
-    def __init__(self, newshape=None):
-        Camera.__init__(self,newshape)
+    def __init__(self, data=None):
+        Camera.__init__(self, data)
         # define camera calibration model (= class)
         self.model = 'Pinhole'
 

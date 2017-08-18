@@ -30,24 +30,22 @@ class testCamera(unittest.TestCase):
         dX = cam.dx2dX(x, dx)
         self.assertAlmostEqual((dX[0:2,:]-dx).sum(),0)
 
-    def test_keywords(self):
+    def test_readwrite(self):
         cam1 = Camera()
-        cam1.focal_length = 0.06
-        cam1.pixel_pitch = (0.00001, 0.00001)
-        filename = 'temporary1.cam'
+        cam1.focal_length = 0.03
+        cam1.pixel_pitch = (0.00002, 0.00002)
+        filename = 'testcam1.txt'
         cam1.save_camera(filename)
         cam2 = Camera()
         cam2.read_camera(filename)
-        self.assertAlmostEqual(cam2.focal_length,0.06)
-        self.assertAlmostEqual(cam2.pixel_pitch[1],0.00001)
+        self.assertAlmostEqual(cam2.focal_length,0.03)
+        self.assertAlmostEqual(cam2.pixel_pitch[1],0.00002)
+        cam3 = Camera(cam1)
+        self.assertAlmostEqual(cam3.focal_length,0.03)
+        cam4 = Camera(filename)
+        self.assertAlmostEqual(cam4.focal_length,0.03)
         os.remove(filename)
 
-##    def test_X2x(self):
-##        cam = Camera((32,32))
-##        cam.set_physical_size()
-##        dx = numpy.array([[1],[0]])
-##        dX = cam.dx2dX(dx,dx) 
-##        self.assertAlmostEqual(numpy.sqrt((dX**2).sum()), 1)
 
 class testLinear2d(unittest.TestCase):
 
@@ -84,7 +82,7 @@ class testLinear2d(unittest.TestCase):
         cam1.focal_length = 0.06
         calib = numpy.array([[0.1, 0, 100], [0, 0.11, 101]])
         cam1.set_calibration(calib)
-        filename = 'temporary2.cam'
+        filename = 'testcam2.txt'
         cam1.save_camera(filename)
         cam2 = Linear2d()
         cam2.read_camera(filename)
@@ -114,7 +112,7 @@ class testLinear3d(unittest.TestCase):
                        [0.0, 1, 0, 0],
                        [0.0, 0, 0, 1]])
         cam1.set_calibration(calib)
-        filename = 'temporary4.cam'
+        filename = 'testcam3.txt'
         cam1.save_camera(filename)
         cam2 = Linear3d()
         cam2.read_camera(filename)
@@ -170,7 +168,7 @@ class testScheimpflug(unittest.TestCase):
         cam1 = Scheimpflug()
         cam1.focal_length = 0.05
         cam1.set_calibration(numpy.pi/4, 0.1)
-        filename = 'temporary3.cam'
+        filename = 'testcam4.txt'
         cam1.save_camera(filename)
         cam2 = Scheimpflug()
         cam2.read_camera(filename)
@@ -196,7 +194,7 @@ class testPinhole(unittest.TestCase):
         x0 = array([640, 512])
         cam1 = Pinhole()
         cam1.set_calibration(angle, T, f, k, x0)
-        filename = 'temporary4.cam'
+        filename = 'testcam5.txt'
         cam1.save_camera(filename)
         cam2 = Pinhole()
         cam2.read_camera(filename)
