@@ -529,12 +529,6 @@ class Scheimpflug(Camera):
         return dX      
 
 
-    def dX2dx(self, X, dX):
-        """Use camera models to transform displacement in object coordinates
-        to displacement in image coordinates"""
-        dx = self.X2x(X + 0.5 * dX) - self.X2x(X - 0.5 * dX)
-        return dx
-
 class Pinhole(Camera):
     """Pinhole model with lens distortion"""
     
