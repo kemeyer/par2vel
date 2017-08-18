@@ -2,10 +2,15 @@
 *.pyc
 
 # Build documentation
-/docs/build
+docs/build/
 
 # Python egg metadata, regenerated from source files by setuptools.
-/*.egg-info
+*.egg-info/
+build/
+dist/
+
+# cache
+par2vel/__pycache__/
 
 # spyder project
 .spyproject/
