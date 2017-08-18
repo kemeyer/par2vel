@@ -267,6 +267,29 @@ class Linear2d(Camera):
         x = dot(self.calib,Xone)
         return x
 
+    def calibrate(self, X, x, print_residual=False):
+        """Calibrate using at least 3 data point with points in 
+           physical space X linked to corresponding points in 
+           camera space x. All points cannot be on the same line.
+           
+           If X has two components it is assumed to be points in a plane
+           If X has three compontents the last components is ignored
+        """
+        # expand this to take only two points
+        # this requires guessing 
+        from numpy.linalg import lstsq
+        from numpy import ones, vstack, sqrt
+        assert X.shape[1] > 2
+        assert x.shape[1] > 2
+        myX = vstack((X[0:2,:], ones((1, X.shape[1]))))
+        res = lstsq(myX.T, x.T)
+        calib = res[0].T
+        residual = sqrt((res[1]**2).sum())
+        if print_residual:
+            print('Residual from calibration fit is:', residual)
+        self.set_calibration(calib)
+        
+
     def x2X(self, x, z=0):
         """Find physical coordinates from image coordinates
            We assume that third physical coordinate z=0, providing another

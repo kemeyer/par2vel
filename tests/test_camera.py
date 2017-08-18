@@ -89,6 +89,22 @@ class testLinear2d(unittest.TestCase):
         self.assertAlmostEqual(cam2.focal_length,0.06)
         self.assertAlmostEqual((cam2.calib - calib).sum(), 0)
         os.remove(filename)
+        
+    def test_calibrate(self):
+        from numpy import array
+        cam = Linear2d()
+        X = array([[-1, 1,  -1, 1],
+                   [-1, -1,  1, 1.0]])
+        c = array([[10.0,  0, 0],
+                   [0,  10.0, 0]])
+        cam.set_calibration(c)
+        x = cam.X2x(X)
+        cam.calibrate(X, x)
+        self.assertAlmostEqual(abs(cam.calib - c).sum(), 0)
+        x[0,0] += 0.001
+        cam.calibrate(X, x)
+        self.assertNotAlmostEqual(abs(cam.calib - c).sum(), 0)
+        
 
 class testLinear3d(unittest.TestCase):
 
