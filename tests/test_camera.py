@@ -11,7 +11,7 @@ from par2vel.camera import *
 class testCamera(unittest.TestCase):
 
     def test_X2x(self):
-        cam = Camera((32,32))
+        cam = One2One((32,32))
         X = numpy.array([1.0, 1.0, 0]).reshape(3,-1)
         x = cam.X2x(X)
         self.assertAlmostEqual((x-[1, 1]).sum(),0)
@@ -176,7 +176,7 @@ class testScheimpflug(unittest.TestCase):
         X = array([[0.0], [0.0], [0.0]])
         dX = array([[0.001], [-0.002], [0.0]])
         x = cam.X2x(X)
-        dx = cam.dX2dx(X, dX)
+        dx = cam.X2x(X+0.5*dX) - cam.X2x(X-0.5*dX)
         dX2 = cam.dx2dX(x, dx)
         self.assertAlmostEqual(abs((dX - dX2).sum()),0)
 

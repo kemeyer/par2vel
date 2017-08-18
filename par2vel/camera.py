@@ -139,8 +139,8 @@ class Camera(object):
         """Use camera model to get camera coordinates x
            from physical cooardinates X.
         """
-        # this is simple model that simply assume samme coordinate system
-        return X[0:2,:]
+        # base Camera class do not have a camera model
+        raise Exception('Base class has not camera model and cannot do X2x')
 
     def record_image(self, image, ijcenter, pitch):
         """Record an image given in physical space"""
@@ -169,6 +169,13 @@ class One2One(Camera):
         Camera.__init__(self, data)
         # define camera calibration model (= class)
         self.model = 'One2One'
+
+    def X2x(self, X):
+        """Use camera model to get camera coordinates x
+           from physical cooardinates X.
+        """
+        # this is simple model that assume samme coordinate system
+        return X[0:2,:]
 
     def x2X(self, x, z=0):
         """Find physical coordinates from image coordinates
