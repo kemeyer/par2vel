@@ -3,6 +3,7 @@
 # Open source software under the terms of the GNU General Public License ver 3
 
 import numpy
+import scipy
 import re
 import numbers
 from PIL import Image
@@ -329,21 +330,6 @@ class Linear3d(Camera):
         # define camera calibration model (= class)
         self.model = 'Linear3d'
 
-##    def set_physical_size(self):
-##        """Set a guess on dimensions in physical space"""
-##        from numpy import array, sqrt 
-##        # intersection (roughtly) optical axis and physical plane
-##        x_center = (array([self.shape[1], self.shape[0]]) - 1) * 0.5
-##        x_center.shape = (2, 1)
-##        self.Xopticalaxis = self.x2X(x_center)
-##        # width and height of physical region roughly correponding to image
-##        x0 = array([-0.5, -0.5]).reshape((2,1))
-##        xmax = array([self.shape[1], self.shape[0]]) + x0
-##        self.Xsize = abs(self.x2X(xmax) - self.x2X(x0))  #FIX: not right shape
-##        # size of a 1 pixel displacement in physical space
-##        self.dXpixel = sqrt(((self.x2X(x_center) -
-##                              self.x2X(x_center + [[1],[0]]))**2).sum())
-
     def set_calibration(self, calib):
         """Set calibration parameters"""
         # Calibration is a 3x4 matrix
@@ -399,11 +385,36 @@ class Linear3d(Camera):
         # apply perspective correction
         x = k[0:2,:] / k[2,:]
         return x
-
-
+    
+    def calibrate(self, X, x, print_residual=False):
+        """Calibrate using at least 12 data point with points in 
+           physical space X linked to corresponding points in 
+           camera space x. There should be variation in all three
+           coordinate directions in X.
+        """
+        from scipy.optimize import minimize
+        from numpy import array
+        # guess corresponding to One2One camera
+        calib = array([[1.0,   0, 0, 0],
+                       [  0, 1.0, 0, 0],
+                       [  0,   0, 0, 1]])
+        a0 = calib.flatten()
+        # make function to be minimized
+        def func(a):
+            calib = a.reshape((3,4))
+            self.set_calibration(calib)
+            return ((self.X2x(X) - x)**2).sum()
+        # do optimization
+        res = minimize(func, a0)
+        calib = res.x.reshape((3,4))
+        self.set_calibration(calib)
+            
 
 class Scheimpflug(Camera):
-    """Camera model for simple Scheimpflug camera"""
+    """Camera model for simple Scheimpflug camera. 
+       This camera is for different tests, but is not meant for use
+       with real experiments.
+    """
     # this camera assumes the coordinatesystem to have origin on optical axis
     def __init__(self, data=None):
         Camera.__init__(self, data)

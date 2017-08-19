@@ -135,6 +135,21 @@ class testLinear3d(unittest.TestCase):
         self.assertAlmostEqual(cam2.focal_length,0.04)
         self.assertAlmostEqual((cam2.calib - calib).sum(), 0)
         os.remove(filename)
+        
+    def test_calibrate(self):
+        from numpy import array, pi
+        cam1 = Scheimpflug()
+        cam1.set_calibration(pi/4, 0.1)
+        X0 = array([
+              [-1,  0,  1, -1, 0, 1, -1, 0, 1.0],
+              [-1, -1, -1,  0, 0, 0,  1, 1, 1.0],
+              [ 0,  0,  0,  0, 0, 0,  0, 0, 0  ]]) * 0.01
+        X = hstack((X0 - [[0],[0],[0.0001]], X0, X0 + [[0],[0],[0.0001]]))
+        x = cam1.X2x(X)
+        cam2 = Linear3d();
+        cam2.calibrate(X, x)
+        x2 = cam2.X2x(X)
+        self.assertTrue((x2 - x).std() < 0.1) #variation less than 0.1 pixel           
 
 
 class testScheimpflug(unittest.TestCase):
