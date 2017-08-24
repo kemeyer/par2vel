@@ -141,7 +141,38 @@ class Camera(object):
            from physical cooardinates X.
         """
         # base Camera class do not have a camera model
-        raise Exception('Base class has not camera model and cannot do X2x')
+        raise Exception('Base class has no camera model and cannot do X2x')
+
+    def x2X(self, x, z=0):
+        """Solve to finde physical coordinate (with X[2]=z) from 
+           image coordinate x. 
+           In this version z is the same float value for all points.
+           Note: This is the default version that is expensive to evaluate.
+        """
+        from numpy import zeros, vstack
+        from scipy.optimize import minimize
+        X = zeros((3,x.shape[1]))
+        X_guess = zeros((2, 1))
+        for i in range(x.shape[1]):
+            def func(X2):
+                #print('X2.shape',X2.shape)
+                Xin = zeros((3,1))
+                Xin[0:2,:] = X2.reshape((2,1))
+                # Xin = vstack((X2, z))
+                return ((self.X2x(Xin)[:,0] - x[:,i])**2).sum()
+            res = minimize(func, X_guess)
+            X[0 : 2, i] = res.x
+        return X
+
+    def dx2dX(self, x, dx, z=0):
+        """Transform displacement in pixel to physical displacement.
+           The displacement is assumed to be at the z=0 plane in
+           physical space.
+        """
+        # very simple model setting physical coordinates to image coord.
+        from numpy import zeros, vstack
+        dX = self.x2X(x + 0.5 * dx, z) - self.x2X(x - 0.5 * dx, z)
+        return dX      
 
     def record_image(self, image, ijcenter, pitch):
         """Record an image given in physical space"""
@@ -501,12 +532,13 @@ class Scheimpflug(Camera):
         x = vstack((x0, x1))
         return x
 
-    def x2X(self, x):
+    def x2X(self, x, z=0):
         """Use camera model to get physcial coordinates X from c
-           camera coordinates x (assuming X[2]=0)
+           camera coordinates x (assuming X[2]=0, i.e. z must be 0.
         """
         # using solution from PIV book by Raffel et al (2007), page 215
         from numpy import cos, sin, tan, arctan, vstack, zeros, sqrt
+        assert z == 0
         ni, nj = x.shape
         # find angles and distances
         theta = self.theta

@@ -111,11 +111,11 @@ class testLinear3d(unittest.TestCase):
     def test_X2x(self):
         from numpy import array
         cam = Linear3d()
+        X = array([[1.0], [1.0], [0]])
         matrix = array([[1.0, 0, 0, 0],
                         [0.0, 1, 0, 0],
                         [0.0, 0, 0, 1]])
         cam.set_calibration(matrix)
-        X = array([[1.0], [1.0], [0]])
         x_result = array([[1.0],[1.0]])
         x = cam.X2x(X)
         self.assertAlmostEqual((x - x_result).sum(),0)
@@ -137,7 +137,7 @@ class testLinear3d(unittest.TestCase):
         os.remove(filename)
         
     def test_calibrate(self):
-        from numpy import array, pi
+        from numpy import array, pi, hstack
         cam1 = Scheimpflug()
         cam1.set_calibration(pi/4, 0.1)
         X0 = array([
@@ -149,7 +149,13 @@ class testLinear3d(unittest.TestCase):
         cam2 = Linear3d();
         cam2.calibrate(X, x)
         x2 = cam2.X2x(X)
-        self.assertTrue((x2 - x).std() < 0.1) #variation less than 0.1 pixel           
+        self.assertTrue((x2 - x).std() < 0.1) #variation less than 0.1 pixel  
+        # the following is a test of x2X from base class
+        x3 = cam2.X2x(X0)
+        X3 = cam2.x2X(x3, z=0)
+        # deviation much smaller than typical scale of 0.01
+        self.assertTrue(abs(X0 - X3).sum() < 0.01 * 0.0001)
+                                     
 
 
 class testScheimpflug(unittest.TestCase):
