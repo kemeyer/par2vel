@@ -675,9 +675,9 @@ class Pinhole(Camera):
         Xc = dot(self.R, X) + self.T      # transform to pinhole coordinates
         xd = self.f * Xc[0:2,:] / Xc[2,:] # pinhole model
         r = sqrt(xd[0,:]**2 + xd[1,:])    # radial distance to optical axis
-        xu = xd + k[0] * r                # first order radial distortion
-        for i in range(len(k)-1):
-            xu = k[i + 1] * r**(i+2)      # optional higher order terms
+        xu = xd + self.k[0] * r                # first order radial distortion
+        for i in range(len(self.k)-1):
+            xu = self.k[i + 1] * r**(i+2)      # optional higher order terms
         pixelpitch = array(self.pixel_pitch).reshape((2,1))
         x = xu / pixelpitch + self.x0
         return x
