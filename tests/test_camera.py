@@ -241,7 +241,20 @@ class testPinhole(unittest.TestCase):
         self.assertAlmostEqual(abs((cam2.k - k).sum()),0)
         self.assertAlmostEqual(abs((cam2.x0 - x0).sum()),0)
         os.remove(filename)
-
+        
+    def test_X2x(self):
+        from numpy import array
+        n = 512
+        cam = Pinhole((n, n))
+        cam.pixel_pitch = (1, 1)
+        cam.set_calibration([0,0,0],[0,0,1], 1, 0, [n/2,n/2])
+        X = array([
+                  [-1, 0, 1, 0, 0, 1],
+                  [ 0, 0, 0,-1, 1, 1],
+                  [ 0, 0, 0, 0, 0, 0]])
+        x1 = X[0:2,:] + array([[n/2],[n/2]])
+        x2 = cam.X2x(X)
+        self.assertAlmostEqual(abs(x1 - x2).sum(), 0)
 
 if __name__=='__main__':
     numpy.set_printoptions(precision=4)
